@@ -1,0 +1,38 @@
+on:
+  pull_request:
+    # Target for PRs
+    branches: [main]
+    # Synchronize triggers the workflow when the PR is updated with new commits
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build-cache:
+    runs-on: busybox-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: cache
+          key: cache-${{ hashFiles('src') }}
+          lookup-only: true
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          ./build_cache.sh
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: cache
+          key: cache-${{ hashFiles('src') }}
+
+  use-cache:
+    runs-on: busybox-latest
+    needs: build-cache
+    steps:
+      - uses: actions/checkout@v4
+      - id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: cache
+          key: cache-${{ hashFiles('src') }}
+          fail-on-cache-miss: true
