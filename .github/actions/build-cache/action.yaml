@@ -1,0 +1,18 @@
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache/restore@v4
+      id: cache
+      with:
+        path: cache
+        key: cache-${{ hashFiles('src') }}
+        lookup-only: true
+    - if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        sh ./build_cache.sh
+      shell: bash
+    - if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: cache
+        key: cache-${{ hashFiles('src') }}

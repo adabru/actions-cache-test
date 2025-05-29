@@ -7,17 +7,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - id: cache
-        uses: actions/cache/restore@v4
-        with:
-          path: cache
-          key: cache-${{ hashFiles('src') }}
-          lookup-only: true
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          sh ./build_cache.sh
-      - if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: cache
-          key: cache-${{ hashFiles('src') }}
+      - uses: ./.github/actions/build-cache
